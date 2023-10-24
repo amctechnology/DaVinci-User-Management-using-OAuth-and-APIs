@@ -128,3 +128,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Files to ignore
+users/deleteUsers.json
+users/exportUsers.json
+users/importUsers.json
+config.json.*
+config.json

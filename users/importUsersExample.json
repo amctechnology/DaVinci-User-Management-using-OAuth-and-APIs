@@ -1,0 +1,59 @@
+[
+  {
+    "loglevel": 100,
+    "userid": "00000000-0000-0000-0000-000000000000",
+    "username": "Existing@example.com",
+    "firstname": "Existing",
+    "lastname": "User",
+    "email": "Existing@example.com",
+    "isActive": true,
+    "roleid": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+    "rolename": "Agent",
+    "accountname": "Example Account",
+    "accountId": "00000000-0000-0000-0000-000000000000",
+    "originalAccountId": null,
+    "profileid": "00000000-0000-0000-0000-000000000000",
+    "profilename": "Example Profile",
+    "customerId": null,
+    "hasLicense": false,
+    "lastLoginTime": "0001-01-01T00:00:00",
+    "attributes": null,
+    "profiles": [
+      {
+        "profileid": "00000000-0000-0000-0000-000000000000",
+        "userid": "00000000-0000-0000-0000-000000000000",
+        "profileName": "Example Profile"
+      }
+    ],
+    "profilesJson": "[{\"userid\": \"00000000-0000-0000-0000-000000000000\", \"profileid\": \"00000000-0000-0000-0000-000000000000\", \"profilename\": \"test\"}]",
+    "logModifiedDate": "0001-01-01T00:00:00"
+  },
+  {
+    "loglevel": 100,
+    "username": "New@example.com",
+    "firstname": "New",
+    "lastname": "User",
+    "email": "New@example.com",
+    "isActive": true,
+    "roleid": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+    "rolename": "Agent",
+    "accountname": "Example Account",
+    "accountId": "00000000-0000-0000-0000-000000000000",
+    "originalAccountId": null,
+    "profileid": "00000000-0000-0000-0000-000000000000",
+    "profilename": "Example Profile",
+    "customerId": null,
+    "hasLicense": false,
+    "lastLoginTime": "0001-01-01T00:00:00",
+    "attributes": null,
+    "profiles": [
+      {
+        "profileid": "00000000-0000-0000-0000-000000000000",
+        "userid": "00000000-0000-0000-0000-000000000000",
+        "profileName": "Example Profile"
+      }
+    ],
+    "profilesJson": "[{\"userid\": \"00000000-0000-0000-0000-000000000000\", \"profileid\": \"00000000-0000-0000-0000-000000000000\", \"profilename\": \"test\"}]",
+    "logModifiedDate": "0001-01-01T00:00:00"
+  }
+]
