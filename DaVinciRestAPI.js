@@ -45,7 +45,7 @@ async function initialize() {
  * @return {string} returns the cookie from the DaVinci OAuth Service
  */
 async function getCookie(OAuth) {
-    const response = await sendRequest(Method.POST, davinciAuthUrl, '/Auth', OAuth);
+    const response = await sendRequest(Method.POST, davinciAuthUrl, '/v1/Auth', OAuth);
     for (let i = 0; i < response.headers.length; i++) {
         const header = response.headers[i];
         if (header.key == 'Set-Cookie') {
@@ -205,7 +205,7 @@ async function readFromJsonFile(fileName) {
  */
 async function exportUsers(cookie) {
     /**@type {User[]}*/
-    const users = await sendRequest(Method.GET, davinciApiUrl, '/api/user', null, cookie);
+    const users = await sendRequest(Method.GET, davinciApiUrl, '/v1/api/user', null, cookie);
     console.log(JSON.stringify(users));
     await writeToJsonFile(users, 'users/exportUsers.json');
     return users;
@@ -221,7 +221,7 @@ async function importUsers(cookie) {
     /**@type {User[]}*/
     const users = await readFromJsonFile('users/importUsers.json');
     console.log(JSON.stringify(users));
-    const response = await sendRequest(Method.PUT, davinciApiUrl, '/api/user/ImportUsers', users, cookie);
+    const response = await sendRequest(Method.PUT, davinciApiUrl, '/v1/api/user/ImportUsers', users, cookie);
     console.log(JSON.stringify(response));
     return response;
 }
@@ -235,7 +235,7 @@ async function importUsers(cookie) {
 async function deleteUsers(cookie) {
     const users = await readFromJsonFile('users/deleteUsers.json');
     console.log(JSON.stringify(users));
-    const response = await sendRequest(Method.POST, davinciApiUrl, '/api/user/DeleteUsers', users, cookie);
+    const response = await sendRequest(Method.POST, davinciApiUrl, '/v1/api/user/DeleteUsers', users, cookie);
     console.log(JSON.stringify(response));
     return response;
 }
@@ -249,7 +249,7 @@ async function deleteUsers(cookie) {
 async function createUser(cookie) {
     /**@type {User}*/
     let user = await createUserObject();
-    const response = await sendRequest(Method.PUT, davinciApiUrl, '/api/user/ImportUsers', [user], cookie);
+    const response = await sendRequest(Method.PUT, davinciApiUrl, '/v1/api/user/ImportUsers', [user], cookie);
     console.log(JSON.stringify(response));
     return response;
 }
