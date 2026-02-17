@@ -1,4 +1,5 @@
 const https = require('https');
+const { parse } = require('path');
 const readline = require('readline').createInterface({ input: process.stdin, output: process.stdout });
 const davinciAuthUrl = 'oauth.contactcanvas.com';
 const davinciApiUrl = 'api.contactcanvas.com';
@@ -221,7 +222,12 @@ async function importUsers(cookie) {
     /**@type {User[]}*/
     const users = await readFromJsonFile('users/importUsers.json');
     console.log(JSON.stringify(users));
-    const response = await sendRequest(Method.PUT, davinciApiUrl, '/v1/api/user/ImportUsers', users, cookie);
+    const newUsersWithoutLicense = users
+        .filter(user => (user.hasLicense === false || user.hasLicense == null) && !user.userid)
+        .map(user => user.username);
+    
+    let response = await sendRequest(Method.PUT, davinciApiUrl, '/v3/api/user/ImportUsers', users, cookie);
+    response = parseImportResponse(response, newUsersWithoutLicense);
     console.log(JSON.stringify(response));
     return response;
 }
@@ -249,7 +255,14 @@ async function deleteUsers(cookie) {
 async function createUser(cookie) {
     /**@type {User}*/
     let user = await createUserObject();
-    const response = await sendRequest(Method.PUT, davinciApiUrl, '/v1/api/user/ImportUsers', [user], cookie);
+    // Determine if this new user should have license removal failures ignored
+    // New users without hasLicense=true should not trigger license removal errors
+    // Use email as the unique identifier (falls back to username if email is not set)
+    const usersWithoutLicenseAttempted = (user.hasLicense === false || user.hasLicense == null) 
+        ? [(user.email || user.username || '').toLowerCase()] 
+        : [];
+    let response = await sendRequest(Method.PUT, davinciApiUrl, '/v3/api/user/ImportUsers', [user], cookie);
+    response = parseImportResponse(response, usersWithoutLicenseAttempted);
     console.log(JSON.stringify(response));
     return response;
 }
@@ -272,7 +285,13 @@ async function createUserObject(username = null, profileid = null, profilename =
     user.roleid = 'd5fa771f-11a2-73af-a5fe-91f42c06e709'; // Default role is Agent
     user.accountid = '00000000-0000-0000-0000-000000000000'; // User will automatically be assigned to the account as the OAuth Credentials
     user.accountname = 'Default';
-    user.hasLicense = true;
+    if (typeof hasLicense === 'boolean') {
+        user.hasLicense = hasLicense;
+    } else {
+        const licenseAnswer = await readLineHandler('Assign a license to this user? (y/n): ');
+        const normalized = (licenseAnswer || '').trim().toLowerCase();
+        user.hasLicense = (normalized === 'y' || normalized === 'yes' || normalized === '1' || normalized === 'true') ? true : false;
+    }
     user.profiles = [
         {
             profileid: user.profileid,
@@ -286,6 +305,55 @@ async function createUserObject(username = null, profileid = null, profilename =
     user.logModifiedDate = new Date().toISOString();
     console.log(JSON.stringify(user));
     return user;
+}
+
+
+/**
+ * Formats the response from the DaVinci API after a user import or user create.
+ * Removes false license removal failures for new users that were created without a license.
+ *
+ * @param {*} response Response from the DaVinci API after a user import or user create operation.
+ * @param {string[]} usersWithoutLicenseAttempted Array of emails (lowercase) for new users that should not have license removal failures.
+ * @return {*} Formatted response with corrected error counts and filtered license removal failures.
+ */
+function parseImportResponse(response, usersWithoutLicenseAttempted = []) {
+    if (!response || !usersWithoutLicenseAttempted || usersWithoutLicenseAttempted.length === 0) {
+        return response;
+    }
+
+    const isUserInList = (identifier) => {
+        if (!identifier) {
+            return false;
+        } else {
+            return usersWithoutLicenseAttempted.includes(identifier.toLowerCase());
+        }
+    };
+
+    if (response.licenseRemovalFailures) {
+        const originalFailureCount = response.licenseRemovalFailures.length;
+        response.licenseRemovalFailures = response.licenseRemovalFailures.filter(
+            failedIdentifier => !isUserInList(failedIdentifier)
+        );
+        const removedCount = originalFailureCount - response.licenseRemovalFailures.length;
+        
+        if (response.totalErrors && removedCount > 0) {
+            response.totalErrors = Math.max(0, response.totalErrors - removedCount);
+        }
+    }
+
+    if (response.results) {
+        response.results = response.results.filter(result => {
+            const userIdentifier = result.email || result.username;
+            if (isUserInList(userIdentifier) && 
+                result.errorMessage && 
+                result.errorMessage.includes('Unable to remove license')) {
+                return false;
+            }
+            return true;
+        });
+    }
+
+    return response;
 }
 
 /**
