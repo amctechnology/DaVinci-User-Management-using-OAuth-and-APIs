@@ -1,9 +1,9 @@
 {
   "name": "davinci-rest-api-scripts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Scripts for managing users in DaVinci via the REST API",
   "scripts": {
-    "start": "node DaVinciRestApi.js"
+    "start": "node DaVinciRestAPI.js"
   },
   "author": "Eric Neiman",
   "dependencies": {

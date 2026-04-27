@@ -35,7 +35,7 @@ This action will export all users from the account to the `exportUsers.json` fil
 ### Import Users
 
 This action will import users from the `importUsers.json` file. This file must be located in the `users` sub directory of the project directory. The file must be in the same format as the `exportUsers.json` file.
-If you want to create a new user the userid field needs to be null or undefined and the username and email need to be cannot already have been used to create a user. Note that license assignment and removal is supported for the existing/new user import action using the hasLicense property that is present on each user object in the import json file. License assignment will fail when assigning a license to an existing user who already has one and license removal will fail when removing a license from an existing user who does not yet have one assigned. If no changes to the existing user's license status are required you may set the hasLicense property to null.
+If you want to create a new user the userid field needs to be null or undefined and the username and email cannot already have been used to create a user. Note that license assignment and removal is supported for the existing/new user import action using the hasLicense property that is present on each user object in the import json file. License assignment will fail when assigning a license to an existing user who already has one and license removal will fail when removing a license from an existing user who does not yet have one assigned. If no changes to the existing user's license status are required you may set the hasLicense property to null.
 
 ### Delete Users
 
