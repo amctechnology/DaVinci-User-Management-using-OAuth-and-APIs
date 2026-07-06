@@ -1,8 +1,8 @@
 const https = require('https');
 const { parse } = require('path');
 const readline = require('readline').createInterface({ input: process.stdin, output: process.stdout });
-const davinciAuthUrl = 'oauth.contactcanvas.com';
-const davinciApiUrl = 'api.contactcanvas.com';
+const davinciAuthUrl = 'oauth-dev.contactcanvas.com';
+const davinciApiUrl = 'api-dev.contactcanvas.com';
 
 /**
  * This enum represents the HTTP methods that can be used in a REST request
@@ -225,7 +225,7 @@ async function importUsers(cookie) {
     const newUsersWithoutLicense = users
         .filter(user => (user.hasLicense === false || user.hasLicense == null) && !user.userid)
         .map(user => user.username);
-    
+
     let response = await sendRequest(Method.PUT, davinciApiUrl, '/v3/api/user/ImportUsers', users, cookie);
     response = parseImportResponse(response, newUsersWithoutLicense);
     console.log(JSON.stringify(response));
@@ -258,8 +258,8 @@ async function createUser(cookie) {
     // Determine if this new user should have license removal failures ignored
     // New users without hasLicense=true should not trigger license removal errors
     // Use email as the unique identifier (falls back to username if email is not set)
-    const usersWithoutLicenseAttempted = (user.hasLicense === false || user.hasLicense == null) 
-        ? [(user.email || user.username || '').toLowerCase()] 
+    const usersWithoutLicenseAttempted = (user.hasLicense === false || user.hasLicense == null)
+        ? [(user.email || user.username || '').toLowerCase()]
         : [];
     let response = await sendRequest(Method.PUT, davinciApiUrl, '/v3/api/user/ImportUsers', [user], cookie);
     response = parseImportResponse(response, usersWithoutLicenseAttempted);
@@ -335,7 +335,7 @@ function parseImportResponse(response, usersWithoutLicenseAttempted = []) {
             failedIdentifier => !isUserInList(failedIdentifier)
         );
         const removedCount = originalFailureCount - response.licenseRemovalFailures.length;
-        
+
         if (response.totalErrors && removedCount > 0) {
             response.totalErrors = Math.max(0, response.totalErrors - removedCount);
         }
@@ -344,8 +344,8 @@ function parseImportResponse(response, usersWithoutLicenseAttempted = []) {
     if (response.results) {
         response.results = response.results.filter(result => {
             const userIdentifier = result.email || result.username;
-            if (isUserInList(userIdentifier) && 
-                result.errorMessage && 
+            if (isUserInList(userIdentifier) &&
+                result.errorMessage &&
                 result.errorMessage.includes('Unable to remove license')) {
                 return false;
             }
