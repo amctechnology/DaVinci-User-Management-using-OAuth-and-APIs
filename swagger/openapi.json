@@ -1,0 +1,619 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "DaVinci User Management API",
+        "version": "1.0.0",
+        "description": "Documentation for AMC Technology DaVinci REST API endpoints. Authentication is performed by posting a clientId and clientSecret to the OAuth endpoint. Subsequent requests send the access_token cookie."
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Authenticate and retrieve the access token cookie."
+        },
+        {
+            "name": "Users",
+            "description": "Export, import, create, and delete users."
+        }
+    ],
+    "paths": {
+        "/v1/Auth": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Authenticate",
+                "description": "Authenticates with DaVinci OAuth and returns an access_token cookie in the Set-Cookie response header.",
+                "operationId": "authenticate",
+                "servers": [
+                    {
+                        "url": "https://oauth.contactcanvas.com/"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AuthRequest"
+                            },
+                            "example": {
+                                "clientId": "<ClientId from Creators Studio>",
+                                "clientSecret": "<ClientSecret from Creators Studio>"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Authenticated successfully. The access token is returned via Set-Cookie.",
+                        "headers": {
+                            "Set-Cookie": {
+                                "description": "Contains the access_token cookie used for subsequent API requests.",
+                                "schema": {
+                                    "type": "string",
+                                    "example": "access_token=eyJ...; Path=/; Secure; HttpOnly"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true
+                                },
+                                "example": {
+                                    "version": "1.1",
+                                    "content": {
+                                        "headers": [
+                                            {
+                                                "key": "Content-Length",
+                                                "value": [
+                                                    "1697"
+                                                ]
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": [
+                                                    "application/json; charset=utf-8"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "statusCode": 200,
+                                    "reasonPhrase": "OK",
+                                    "headers": [
+                                        {
+                                            "key": "Date",
+                                            "value": [
+                                                "Thu, 01 Jan 2026 00:00:00 GMT"
+                                            ]
+                                        },
+                                        {
+                                            "key": "Server",
+                                            "value": [
+                                                "Kestrel"
+                                            ]
+                                        },
+                                        {
+                                            "key": "Cache-Control",
+                                            "value": [
+                                                "no-store, must-revalidate, no-cache"
+                                            ]
+                                        },
+                                        {
+                                            "key": "Set-Cookie",
+                                            "value": [
+                                                "access_token=sample-access-token-value; expires=Thu, 01 Jan 2026 01:00:00 GMT; max-age=3600; domain=example.com; path=/; secure; samesite=none; httponly"
+                                            ]
+                                        },
+                                        {
+                                            "key": "X-Frame-Options",
+                                            "value": [
+                                                "DENY"
+                                            ]
+                                        },
+                                        {
+                                            "key": "X-Content-Type-Options",
+                                            "value": [
+                                                "nosniff"
+                                            ]
+                                        },
+                                        {
+                                            "key": "Permissions-Policy",
+                                            "value": [
+                                                "camera=*"
+                                            ]
+                                        },
+                                        {
+                                            "key": "api-supported-versions",
+                                            "value": [
+                                                "1.0"
+                                            ]
+                                        }
+                                    ],
+                                    "trailingHeaders": [],
+                                    "requestMessage": {
+                                        "version": "1.1",
+                                        "versionPolicy": 0,
+                                        "content": {
+                                            "headers": [
+                                                {
+                                                    "key": "Content-Type",
+                                                    "value": [
+                                                        "application/json; charset=utf-8"
+                                                    ]
+                                                },
+                                                {
+                                                    "key": "Content-Length",
+                                                    "value": [
+                                                        "1030"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "method": {
+                                            "method": "POST"
+                                        },
+                                        "requestUri": "https://api.example.com/v1/api/OAuth/VerifyToken",
+                                        "headers": [
+                                            {
+                                                "key": "traceparent",
+                                                "value": [
+                                                    "00-00000000000000000000000000000000-0000000000000000-00"
+                                                ]
+                                            }
+                                        ],
+                                        "properties": {},
+                                        "options": {}
+                                    },
+                                    "isSuccessStatusCode": true
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed"
+                    }
+                }
+            }
+        },
+        "/v1/api/user": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Export users",
+                "description": "Returns the users for the authenticated account.",
+                "operationId": "exportUsers",
+                "servers": [
+                    {
+                        "url": "https://api.contactcanvas.com"
+                    }
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Users returned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/v3/api/user/ImportUsers": {
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Import users",
+                "description": "Imports users in bulk. This same endpoint is also used to create a new user by submitting a single-user array with userid set to null.",
+                "operationId": "importUsers",
+                "servers": [
+                    {
+                        "url": "https://api.contactcanvas.com"
+                    }
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            },
+                            "examples": {
+                                "importExistingOrMixedUsers": {
+                                    "summary": "Import multiple users",
+                                    "value": [
+                                        [
+                                            {
+                                                "loglevel": 100,
+                                                "userid": "00000000-0000-0000-0000-000000000000",
+                                                "username": "Existing@example.com",
+                                                "firstname": "Existing",
+                                                "lastname": "User",
+                                                "email": "Existing@example.com",
+                                                "isActive": true,
+                                                "roleid": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+                                                "rolename": "Agent",
+                                                "accountname": "Example Account",
+                                                "accountId": "00000000-0000-0000-0000-000000000000",
+                                                "originalAccountId": null,
+                                                "profileid": "00000000-0000-0000-0000-000000000000",
+                                                "profilename": "Example Profile",
+                                                "customerId": null,
+                                                "hasLicense": false,
+                                                "lastLoginTime": "0001-01-01T00:00:00",
+                                                "attributes": null,
+                                                "profiles": [
+                                                    {
+                                                        "profileid": "00000000-0000-0000-0000-000000000000",
+                                                        "userid": "00000000-0000-0000-0000-000000000000",
+                                                        "profileName": "Example Profile"
+                                                    }
+                                                ],
+                                                "profilesJson": "[{\"userid\": \"00000000-0000-0000-0000-000000000000\", \"profileid\": \"00000000-0000-0000-0000-000000000000\", \"profilename\": \"test\"}]",
+                                                "logModifiedDate": "0001-01-01T00:00:00"
+                                            },
+                                            {
+                                                "loglevel": 100,
+                                                "username": "New@example.com",
+                                                "firstname": "New",
+                                                "lastname": "User",
+                                                "email": "New@example.com",
+                                                "isActive": true,
+                                                "roleid": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+                                                "rolename": "Agent",
+                                                "accountname": "Example Account",
+                                                "accountId": "00000000-0000-0000-0000-000000000000",
+                                                "originalAccountId": null,
+                                                "profileid": "00000000-0000-0000-0000-000000000000",
+                                                "profilename": "Example Profile",
+                                                "customerId": null,
+                                                "hasLicense": false,
+                                                "lastLoginTime": "0001-01-01T00:00:00",
+                                                "attributes": null,
+                                                "profiles": [
+                                                    {
+                                                        "profileid": "00000000-0000-0000-0000-000000000000",
+                                                        "userid": "00000000-0000-0000-0000-000000000000",
+                                                        "profileName": "Example Profile"
+                                                    }
+                                                ],
+                                                "profilesJson": "[{\"userid\": \"00000000-0000-0000-0000-000000000000\", \"profileid\": \"00000000-0000-0000-0000-000000000000\", \"profilename\": \"test\"}]",
+                                                "logModifiedDate": "0001-01-01T00:00:00"
+                                            }
+                                        ]
+                                    ]
+                                },
+                                "createSingleUser": {
+                                    "summary": "Create one new user",
+                                    "value": [
+                                        {
+                                                "loglevel": 100,
+                                                "username": "ExampleTwo@example.com",
+                                                "firstname": "New",
+                                                "lastname": "User",
+                                                "email": "ExampleTwo@example.com",
+                                                "isActive": true,
+                                                "roleid": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+                                                "rolename": "Agent",
+                                                "accountname": "Example Account",
+                                                "accountId": "00000000-0000-0000-0000-000000000000",
+                                                "originalAccountId": null,
+                                                "profileid": "00000000-0000-0000-0000-000000000000",
+                                                "profilename": "Example Profile",
+                                                "customerId": null,
+                                                "hasLicense": false,
+                                                "lastLoginTime": "0001-01-01T00:00:00",
+                                                "attributes": null,
+                                                "profiles": [
+                                                    {
+                                                        "profileid": "00000000-0000-0000-0000-000000000000",
+                                                        "userid": "00000000-0000-0000-0000-000000000000",
+                                                        "profileName": "Example Profile"
+                                                    }
+                                                ],
+                                                "profilesJson": "[{\"userid\": \"00000000-0000-0000-0000-000000000000\", \"profileid\": \"00000000-0000-0000-0000-000000000000\", \"profilename\": \"test\"}]",
+                                                "logModifiedDate": "0001-01-01T00:00:00"
+                                            }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Import completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ImportUsersResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/v1/api/user/DeleteUsers": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete users",
+                "description": "Deletes users by user ID.",
+                "operationId": "deleteUsers",
+                "servers": [
+                    {
+                        "url": "https://api.contactcanvas.com"
+                    }
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteUsersRequest"
+                            },
+                            "example": [
+                                "22222222-2222-2222-2222-222222222222",
+                                "33333333-3333-3333-3333-333333333333"
+                            ]
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Delete completed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true
+                                }, 
+                                "example": {
+                                    "failedUsers": null
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "cookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "access_token",
+                "description": "Access token cookie returned by the authentication endpoint."
+            }
+        },
+        "schemas": {
+            "AuthRequest": {
+                "type": "object",
+                "required": [
+                    "clientId",
+                    "clientSecret"
+                ],
+                "properties": {
+                    "clientId": {
+                        "type": "string",
+                        "description": "Client ID generated in Creators Studio."
+                    },
+                    "clientSecret": {
+                        "type": "string",
+                        "description": "Client secret generated in Creators Studio."
+                    }
+                }
+            },
+            "Profile": {
+                "type": "object",
+                "required": [
+                    "profileid",
+                    "profilename",
+                    "userid"
+                ],
+                "properties": {
+                    "profileid": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "profilename": {
+                        "type": "string"
+                    },
+                    "userid": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                }
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "loglevel": {
+                        "type": "integer",
+                        "description": "0 = Loop, 1 = Trace, 2 = Debug, 3 = Info, 4 = Warn, 5 = Error, 6 = Critical, 100 = None"
+                    },
+                    "userid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true,
+                        "description": "Null or omitted when creating a new user."
+                    },
+                    "username": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    },
+                    "roleid": {
+                        "type": "string",
+                        "description": "Admin = 413f59a5-6354-116b-3b3e-0a94f94ea000, Agent = d5fa771f-11a2-73af-a5fe-91f42c06e709, No-Access = e3759ee3-6add-ad4c-e970-4a5c7be32c1f"
+                    },
+                    "rolename": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "accountid": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "accountname": {
+                        "type": "string"
+                    },
+                    "originalAccountid": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "profileid": {
+                        "type": "string"
+                    },
+                    "profilename": {
+                        "type": "string"
+                    },
+                    "customerid": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "hasLicense": {
+                        "type": "boolean",
+                        "nullable": true,
+                        "description": "True assigns a license, false removes a license, null leaves the current license state unchanged."
+                    },
+                    "lastLoginTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "attributes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "profiles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Profile"
+                        }
+                    },
+                    "profilesJson": {
+                        "type": "string"
+                    },
+                    "logModifiedDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ImportUsersResponse": {
+                "type": "object",
+                "properties": {
+                    "totalErrors": {
+                        "type": "integer"
+                    },
+                    "licenseRemovalFailures": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ImportUserResult"
+                        }
+                    }
+                },
+                "additionalProperties": true
+            },
+            "ImportUserResult": {
+                "type": "object",
+                "properties": {
+                    "userid": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "username": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "errorMessage": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "additionalProperties": true
+            },
+            "DeleteUsersRequest": {
+                "type": "array",
+                "description": "Array of user IDs to delete.",
+                "items": {
+                    "type": "string",
+                    "format": "uuid"
+                }
+            }
+        }
+    }
+}
