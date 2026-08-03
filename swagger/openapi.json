@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "DaVinci User Management API",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "description": "Documentation for AMC Technology DaVinci REST API endpoints. Authentication is performed by posting a clientId and clientSecret to the OAuth endpoint. Subsequent requests send the access_token cookie."
     },
     "tags": [
@@ -13,6 +13,10 @@
         {
             "name": "Users",
             "description": "Export, import, create, and delete users."
+        },
+        {
+            "name": "Profiles",
+            "description": "Manage profiles for an account."
         }
     ],
     "paths": {
@@ -405,7 +409,7 @@
                                 "schema": {
                                     "type": "object",
                                     "additionalProperties": true
-                                }, 
+                                },
                                 "example": {
                                     "failedUsers": null
                                 }
@@ -417,6 +421,190 @@
                     },
                     "401": {
                         "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/v1/api/user (POST)": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create user",
+                "description": "Creates a single new user directly. Requires Admin or RestUserAdmin authorization.",
+                "operationId": "createUser",
+                "servers": [
+                    {
+                        "url": "https://api.contactcanvas.com"
+                    }
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewUserParams"
+                            },
+                            "examples": {
+                                "createAgentUser": {
+                                    "summary": "Create user with Agent role",
+                                    "value": {
+                                        "UserName": "newuser@example.com",
+                                        "FirstName": "Jane",
+                                        "LastName": "Doe",
+                                        "Password": "securePassword123",
+                                        "RoleId": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+                                        "ProfileId": "00000000-0000-0000-0000-000000000000",
+                                        "HasLicense": true
+                                    }
+                                },
+                                "createAdminUser": {
+                                    "summary": "Create user with Admin role",
+                                    "value": {
+                                        "UserName": "admin@example.com",
+                                        "FirstName": "John",
+                                        "LastName": "Smith",
+                                        "Password": "securePassword123",
+                                        "RoleId": "413f59a5-6354-116b-3b3e-0a94f94ea000",
+                                        "ProfileId": "00000000-0000-0000-0000-000000000000",
+                                        "HasLicense": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient permissions"
+                    },
+                    "409": {
+                        "description": "Conflict - user already exists"
+                    }
+                }
+            }
+        },
+        "/v1/api/user/{userId}": {
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user",
+                "description": "Updates an existing user by user ID. Fields provided in the body will overwrite existing values. Requires Admin or RestUserAdmin authorization.",
+                "operationId": "updateUser",
+                "servers": [
+                    {
+                        "url": "https://api.contactcanvas.com"
+                    }
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "The unique identifier of the user to update."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserParams"
+                            },
+                            "example": {
+                                "firstname": "Jane",
+                                "lastname": "Smith",
+                                "profileid": "00000000-0000-0000-0000-000000000000",
+                                "roleid": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+                                "rolename": "Agent"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient permissions"
+                    }
+                }
+            }
+        },
+        "/v1/api/profile": {
+            "get": {
+                "tags": [
+                    "Profiles"
+                ],
+                "summary": "Get all profiles",
+                "description": "Returns all profiles for the authenticated account. Requires Admin or RestUserAdmin authorization.",
+                "operationId": "getAllProfiles",
+                "servers": [
+                    {
+                        "url": "https://api.contactcanvas.com"
+                    }
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profiles returned successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProfileDetail"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - insufficient permissions"
                     }
                 }
             }
@@ -612,6 +800,128 @@
                 "items": {
                     "type": "string",
                     "format": "uuid"
+                }
+            },
+            "NewUserParams": {
+                "type": "object",
+                "required": [
+                    "UserName",
+                    "RoleId"
+                ],
+                "properties": {
+                    "UserName": {
+                        "type": "string",
+                        "description": "Username (typically an email address)."
+                    },
+                    "FirstName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "LastName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "Password": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Plain-text password. Will be hashed server-side."
+                    },
+                    "RoleId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Role ID to assign. Agent = d5fa771f-11a2-73af-a5fe-91f42c06e709"
+                    },
+                    "ProfileId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true,
+                        "description": "Profile ID to assign to the user."
+                    },
+                    "HasLicense": {
+                        "type": "boolean",
+                        "nullable": true,
+                        "description": "Whether to assign a license to the user."
+                    },
+                    "Attributes": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "JSON string of custom user attributes."
+                    }
+                }
+            },
+            "UpdateUserParams": {
+                "type": "object",
+                "properties": {
+                    "firstname": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "lastname": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "profileid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "roleid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true,
+                        "description": "Must be provided together with rolename."
+                    },
+                    "rolename": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Must be provided together with roleid."
+                    },
+                    "password": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "New plain-text password. Will be hashed server-side."
+                    },
+                    "attributes": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "JSON string of custom user attributes."
+                    },
+                    "loglevel": {
+                        "type": "integer",
+                        "nullable": true,
+                        "description": "Log level (only AMC-Admin can change). 0=Loop, 1=Trace, 2=Debug, 3=Info, 4=Warn, 5=Error, 6=Critical, 100=None"
+                    }
+                }
+            },
+            "ProfileDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Unique profile identifier."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Profile name."
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "isDefaultAgentProfile": {
+                        "type": "boolean"
+                    },
+                    "isDefaultWorkflowProfile": {
+                        "type": "boolean"
+                    },
+                    "profileTypeId": {
+                        "type": "integer"
+                    }
                 }
             }
         }

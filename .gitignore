@@ -133,5 +133,8 @@ dist
 users/deleteUsers.json
 users/exportUsers.json
 users/importUsers.json
+users/createUser.json
+users/updateUser.json
+users/exportProfiles.json
 config.json.*
 config.json

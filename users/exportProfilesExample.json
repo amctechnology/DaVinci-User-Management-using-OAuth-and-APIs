@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Demo",
+    "id": "00000000-0000-0000-0000-000000000000",
+    "icon": null,
+    "description": null,
+    "isDefaultAgentProfile": false,
+    "isDefaultWorkflowProfile": false,
+    "profileTypeId": 1
+  },
+  {
+    "name": "testDynamicsAppConfigs",
+    "id": "00000000-0000-0000-0000-000000000001",
+    "icon": null,
+    "description": null,
+    "isDefaultAgentProfile": false,
+    "isDefaultWorkflowProfile": false,
+    "profileTypeId": 1
+  }
+]

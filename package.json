@@ -1,6 +1,6 @@
 {
   "name": "davinci-rest-api-scripts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Scripts for managing users in DaVinci via the REST API",
   "scripts": {
     "start": "node DaVinciRestAPI.js"
