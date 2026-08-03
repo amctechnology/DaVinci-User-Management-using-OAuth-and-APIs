@@ -73,7 +73,10 @@ async function pickFunction(cookie) {
             '\n(2) Import users' +
             '\n(3) Delete Users' +
             '\n(4) Create New User' +
-            '\n(5) Exit\n'
+            '\n(5) Create User (Direct)' +
+            '\n(6) Update User' +
+            '\n(7) Get All Profiles' +
+            '\n(8) Exit\n'
         );
         switch (input) {
             case '1':
@@ -89,6 +92,15 @@ async function pickFunction(cookie) {
                 await createUser(cookie);
                 break;
             case '5':
+                await createUserDirect(cookie);
+                break;
+            case '6':
+                await updateUser(cookie);
+                break;
+            case '7':
+                await getAllProfiles(cookie);
+                break;
+            case '8':
                 process.exit(0);
             default:
                 console.log('Invalid input');
@@ -225,7 +237,7 @@ async function importUsers(cookie) {
     const newUsersWithoutLicense = users
         .filter(user => (user.hasLicense === false || user.hasLicense == null) && !user.userid)
         .map(user => user.username);
-    
+
     let response = await sendRequest(Method.PUT, davinciApiUrl, '/v3/api/user/ImportUsers', users, cookie);
     response = parseImportResponse(response, newUsersWithoutLicense);
     console.log(JSON.stringify(response));
@@ -247,7 +259,7 @@ async function deleteUsers(cookie) {
 }
 
 /**
- * This function will create a new user in the DaVinci API
+ * This function will create a new user in the DaVinci API using the POST api/v3/user/ImportUsers endpoint.
  *
  * @param {string} cookie
  * @return {*} response body
@@ -258,8 +270,8 @@ async function createUser(cookie) {
     // Determine if this new user should have license removal failures ignored
     // New users without hasLicense=true should not trigger license removal errors
     // Use email as the unique identifier (falls back to username if email is not set)
-    const usersWithoutLicenseAttempted = (user.hasLicense === false || user.hasLicense == null) 
-        ? [(user.email || user.username || '').toLowerCase()] 
+    const usersWithoutLicenseAttempted = (user.hasLicense === false || user.hasLicense == null)
+        ? [(user.email || user.username || '').toLowerCase()]
         : [];
     let response = await sendRequest(Method.PUT, davinciApiUrl, '/v3/api/user/ImportUsers', [user], cookie);
     response = parseImportResponse(response, usersWithoutLicenseAttempted);
@@ -283,6 +295,7 @@ async function createUserObject(username = null, profileid = null, profilename =
     user.profilename = profilename ? profilename : await readLineHandler('Enter profilename: ');
     user.isActive = true;
     user.roleid = 'd5fa771f-11a2-73af-a5fe-91f42c06e709'; // Default role is Agent
+    // user.roleid = '413f59a5-6354-116b-3b3e-0a94f94ea000'; // Admin is the other supported role
     user.accountid = '00000000-0000-0000-0000-000000000000'; // User will automatically be assigned to the account as the OAuth Credentials
     user.accountname = 'Default';
     if (typeof hasLicense === 'boolean') {
@@ -305,6 +318,57 @@ async function createUserObject(username = null, profileid = null, profilename =
     user.logModifiedDate = new Date().toISOString();
     console.log(JSON.stringify(user));
     return user;
+}
+
+
+/**
+ * This function will create a new user directly using the POST /v1/api/user endpoint.
+ * Reads user data from users/createUser.json.
+ *
+ * @param {string} cookie
+ * @return {*} response body (created user object)
+ */
+async function createUserDirect(cookie) {
+    const newUser = await readFromJsonFile('users/createUser.json');
+    console.log(JSON.stringify(newUser));
+    const response = await sendRequest(Method.POST, davinciApiUrl, '/v1/api/user', newUser, cookie);
+    console.log(JSON.stringify(response));
+    return response;
+}
+
+/**
+ * This function will update an existing user using the PUT /v1/api/user/{userId} endpoint.
+ * Reads update data from users/updateUser.json. The file must include a "userId" field
+ * to identify the user to update.
+ *
+ * @param {string} cookie
+ * @return {*} response body
+ */
+async function updateUser(cookie) {
+    const updateData = await readFromJsonFile('users/updateUser.json');
+    const userId = updateData.userId;
+    if (!userId) {
+        throw new Error('users/updateUser.json must include a "userId" field');
+    }
+    // Remove userId from the payload since it goes in the URL
+    delete updateData.userId;
+    console.log(JSON.stringify(updateData));
+    const response = await sendRequest(Method.PUT, davinciApiUrl, `/v1/api/user/${userId}`, updateData, cookie);
+    console.log(JSON.stringify(response));
+    return response;
+}
+
+/**
+ * This function will get all profiles for the authenticated account using GET /v1/api/profile
+ *
+ * @param {string} cookie
+ * @return {*} response body (array of profiles)
+ */
+async function getAllProfiles(cookie) {
+    const response = await sendRequest(Method.GET, davinciApiUrl, '/v1/api/profile', null, cookie);
+    console.log(JSON.stringify(response, null, 2));
+    await writeToJsonFile(response, 'users/exportProfiles.json');
+    return response;
 }
 
 
@@ -335,7 +399,7 @@ function parseImportResponse(response, usersWithoutLicenseAttempted = []) {
             failedIdentifier => !isUserInList(failedIdentifier)
         );
         const removedCount = originalFailureCount - response.licenseRemovalFailures.length;
-        
+
         if (response.totalErrors && removedCount > 0) {
             response.totalErrors = Math.max(0, response.totalErrors - removedCount);
         }
@@ -344,8 +408,8 @@ function parseImportResponse(response, usersWithoutLicenseAttempted = []) {
     if (response.results) {
         response.results = response.results.filter(result => {
             const userIdentifier = result.email || result.username;
-            if (isUserInList(userIdentifier) && 
-                result.errorMessage && 
+            if (isUserInList(userIdentifier) &&
+                result.errorMessage &&
                 result.errorMessage.includes('Unable to remove license')) {
                 return false;
             }

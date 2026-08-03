@@ -1,0 +1,9 @@
+{
+  "UserName": "newuser@example.com",
+  "FirstName": "Jane",
+  "LastName": "Doe",
+  "Password": "securePassword123",
+  "RoleId": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+  "ProfileId": "00000000-0000-0000-0000-000000000000",
+  "HasLicense": true
+}
