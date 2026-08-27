@@ -15,10 +15,10 @@
 
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+    <script src="./openapi.js"></script>
     <script>
       window.onload = () => {
-        window.ui = SwaggerUIBundle({
-          url: "./openapi.json",
+        const config = {
           dom_id: "#swagger-ui",
           deepLinking: true,
           withCredentials: true,
@@ -34,7 +34,15 @@
           ],
           layout: "BaseLayout",
           supportedSubmitMethods: []
-        });
+        };
+
+        if (window.openapiSpec) {
+          config.spec = window.openapiSpec;
+        } else {
+          config.url = "./openapi.json";
+        }
+
+        window.ui = SwaggerUIBundle(config);
       };
     </script>
   </body>
