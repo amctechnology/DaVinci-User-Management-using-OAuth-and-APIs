@@ -388,6 +388,7 @@ window.openapiSpec = {
                     }
                 ],
                 "requestBody": {
+                    "description": "List of user IDs to delete.",
                     "required": true,
                     "content": {
                         "application/json": {
