@@ -36,7 +36,7 @@
           supportedSubmitMethods: []
         };
 
-        if (window.openapiSpec) {
+        if (window.location.protocol === "file:" && window.openapiSpec) {
           config.spec = window.openapiSpec;
         } else {
           config.url = "./openapi.json";
