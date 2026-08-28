@@ -1,4 +1,4 @@
-{
+window.openapiSpec = {
     "openapi": "3.0.3",
     "info": {
         "title": "DaVinci User Management API",
@@ -927,4 +927,4 @@
             }
         }
     }
-}
+};
