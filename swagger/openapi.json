@@ -512,7 +512,7 @@
                     "Users"
                 ],
                 "summary": "Update user",
-                "description": "Updates an existing user by user ID. Fields provided in the body will overwrite existing values. Requires Admin or RestUserAdmin authorization.",
+                "description": "Updates an existing user by user ID. Submit the same object shape returned by the get user endpoint (`GET /v2/api/user/id/{userId}`), with any field changes applied. Fields provided in the body will overwrite existing values. Requires Admin or RestUserAdmin authorization.",
                 "operationId": "updateUser",
                 "servers": [
                     {
@@ -537,18 +537,42 @@
                     }
                 ],
                 "requestBody": {
+                    "description": "Request body should be the full user object returned by the get user endpoint (`GET /v2/api/user/id/{userId}`), updated with the values you want to change.",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/UpdateUserParams"
+                                "$ref": "#/components/schemas/User"
                             },
                             "example": {
+                                "loglevel": 100,
+                                "userid": "00000000-0000-0000-0000-000000000000",
+                                "username": "existing.user@example.com",
                                 "firstname": "Jane",
                                 "lastname": "Smith",
+                                "email": "existing.user@example.com",
+                                "isActive": true,
                                 "profileid": "00000000-0000-0000-0000-000000000000",
                                 "roleid": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
-                                "rolename": "Agent"
+                                "rolename": "Agent",
+                                "accountname": "Example Account",
+                                "accountId": "00000000-0000-0000-0000-000000000000",
+                                "originalAccountId": null,
+                                "profilename": "Example Profile",
+                                "customerId": null,
+                                "hasLicense": null,
+                                "lastLoginTime": "0001-01-01T00:00:00",
+                                "attributes": "[{\"name\":\"Example Attribute\",\"value\":\"Example Value\",\"type\":\"string\",\"appName\":\"DAVINCI APP\",\"locked\":false,\"profileId\":\"00000000-0000-0000-0000-000000000000\"}]",
+                                "customattributes": null,
+                                "profiles": [
+                                    {
+                                        "profileid": "00000000-0000-0000-0000-000000000000",
+                                        "userid": "00000000-0000-0000-0000-000000000000",
+                                        "profileName": "Example Profile"
+                                    }
+                                ],
+                                "profilesJson": null,
+                                "logModifiedDate": "0001-01-01T00:00:00"
                             }
                         }
                     }
@@ -569,6 +593,59 @@
                 }
             }
         },
+            "/v2/api/user/id/{userId}": {
+                "get": {
+                    "tags": [
+                        "Users"
+                    ],
+                    "summary": "Get user by ID",
+                    "description": "Returns a single user by user ID for the authenticated account.",
+                    "operationId": "getUser",
+                    "servers": [
+                        {
+                            "url": "https://api.contactcanvas.com"
+                        }
+                    ],
+                    "security": [
+                        {
+                            "cookieAuth": []
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "name": "userId",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            "description": "The unique identifier of the user to retrieve."
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "User returned successfully",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request"
+                        },
+                        "401": {
+                            "description": "Unauthorized"
+                        },
+                        "404": {
+                            "description": "User not found"
+                        }
+                    }
+                }
+            },
         "/v1/api/profile": {
             "get": {
                 "tags": [
@@ -642,7 +719,7 @@
                 "type": "object",
                 "required": [
                     "profileid",
-                    "profilename",
+                    "profileName",
                     "userid"
                 ],
                 "properties": {
@@ -650,7 +727,7 @@
                         "type": "string",
                         "format": "uuid"
                     },
-                    "profilename": {
+                    "profileName": {
                         "type": "string"
                     },
                     "userid": {
@@ -676,11 +753,11 @@
                         "type": "string",
                         "nullable": true
                     },
-                    "firstName": {
+                    "firstname": {
                         "type": "string",
                         "nullable": true
                     },
-                    "lastName": {
+                    "lastname": {
                         "type": "string",
                         "nullable": true
                     },
@@ -703,14 +780,15 @@
                         "type": "string",
                         "nullable": true
                     },
-                    "accountid": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
                     "accountname": {
                         "type": "string"
                     },
-                    "originalAccountid": {
+                    "accountId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "originalAccountId": {
                         "type": "string",
                         "nullable": true
                     },
@@ -720,7 +798,7 @@
                     "profilename": {
                         "type": "string"
                     },
-                    "customerid": {
+                    "customerId": {
                         "type": "string",
                         "nullable": true
                     },
@@ -734,6 +812,10 @@
                         "format": "date-time"
                     },
                     "attributes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "customattributes": {
                         "type": "string",
                         "nullable": true
                     },

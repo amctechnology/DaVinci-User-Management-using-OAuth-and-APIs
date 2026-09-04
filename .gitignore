@@ -131,6 +131,7 @@ dist
 
 # Files to ignore
 users/deleteUsers.json
+users/exportUser.json
 users/exportUsers.json
 users/importUsers.json
 users/createUser.json

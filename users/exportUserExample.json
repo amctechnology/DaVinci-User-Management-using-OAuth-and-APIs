@@ -1,0 +1,30 @@
+{
+  "loglevel": 100,
+  "userid": "00000000-0000-0000-0000-000000000000",
+  "username": "existing.user@example.com",
+  "firstname": "Existing",
+  "lastname": "User",
+  "email": "existing.user@example.com",
+  "isActive": true,
+  "roleid": "d5fa771f-11a2-73af-a5fe-91f42c06e709",
+  "rolename": "Agent",
+  "accountname": "Example Account",
+  "accountId": "00000000-0000-0000-0000-000000000000",
+  "originalAccountId": null,
+  "profileid": "00000000-0000-0000-0000-000000000000",
+  "profilename": "Example Profile",
+  "customerId": null,
+  "hasLicense": null,
+  "lastLoginTime": "0001-01-01T00:00:00",
+  "attributes": "[{\"name\":\"Example Attribute\",\"value\":\"Example Value\",\"type\":\"string\",\"appName\":\"DAVINCI APP\",\"locked\":false,\"profileId\":\"00000000-0000-0000-0000-000000000000\"}]",
+  "customattributes": null,
+  "profiles": [
+    {
+      "profileid": "00000000-0000-0000-0000-000000000000",
+      "userid": "00000000-0000-0000-0000-000000000000",
+      "profileName": "Example Profile"
+    }
+  ],
+  "profilesJson": null,
+  "logModifiedDate": "0001-01-01T00:00:00"
+}
