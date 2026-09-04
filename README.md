@@ -26,7 +26,11 @@ The script will prompt you to select an action. You can select one of the follow
 2. Import Users
 3. Delete Users
 4. Create New User
-5. Exit
+5. Create User (Direct)
+6. Update User
+7. Get User By ID
+8. Get All Profiles
+9. Exit
 
 ### Export Users
 
@@ -44,6 +48,22 @@ This action will delete users from the `deleteUsers.json` file. This file must b
 ### Create New User
 
 This action will prompt the user to enter the username, profileId, profilename, and whether the new user being created should be assigned a license. The profileId must be from a valid profile in the account and the username you provide must not already exist as a user under your Creators Studio account. Note that for license assignment to succeed you must have enough available licenses under your DaVinci Creators Studio account/subscription. In this scenario the new users you import will still be created, but no licenses will be applied.
+
+### Create User (Direct)
+
+This action will create a single user using the `users/createUser.json` file and the `POST /v1/api/user` endpoint.
+
+### Update User
+
+This action will update a single user using the `users/updateUser.json` file and the `PUT /v1/api/user/{userId}` endpoint. The JSON file must include a `userId` property, which is used in the URL and removed from the request body before the request is sent.
+
+### Get User By ID
+
+This action will prompt for a user id, retrieve that specific user, and write the response to `users/exportUser.json`. See `users/exportUserExample.json` for an example response shape.
+
+### Get All Profiles
+
+This action will retrieve all profiles for the authenticated account and write them to `users/exportProfiles.json`.
 
 ### Exit
 

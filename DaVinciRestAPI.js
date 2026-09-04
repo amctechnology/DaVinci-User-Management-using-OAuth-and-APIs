@@ -75,8 +75,9 @@ async function pickFunction(cookie) {
             '\n(4) Create New User' +
             '\n(5) Create User (Direct)' +
             '\n(6) Update User' +
-            '\n(7) Get All Profiles' +
-            '\n(8) Exit\n'
+            '\n(7) Get User By ID' +
+            '\n(8) Get All Profiles' +
+            '\n(9) Exit\n'
         );
         switch (input) {
             case '1':
@@ -98,9 +99,12 @@ async function pickFunction(cookie) {
                 await updateUser(cookie);
                 break;
             case '7':
-                await getAllProfiles(cookie);
+                await getUser(cookie);
                 break;
             case '8':
+                await getAllProfiles(cookie);
+                break;
+            case '9':
                 process.exit(0);
             default:
                 console.log('Invalid input');
@@ -154,6 +158,11 @@ async function sendRequest(method, host, path, payload, cookie) {
             method: method != null ? method : Method.GET,
             headers: headers
         };
+
+        console.group();
+        console.log(options);
+        console.groupEnd();
+
         const req = https.request(options, (res) => {
             let data = '';
 
@@ -166,7 +175,21 @@ async function sendRequest(method, host, path, payload, cookie) {
             });
 
             res.on('end', () => {
-                resolve(JSON.parse(data? data : '{}'));
+                console.group(`Response [${options.method}] ${options.path}`);
+                console.log(`Status: ${res.statusCode} ${res.statusMessage}`);
+                console.log('Headers:', res.headers);
+                let parsed;
+                try {
+                    parsed = data ? JSON.parse(data) : {};
+                    console.log('Body:', parsed);
+                } catch (e) {
+                    // Logs raw body if response isn't valid JSON (e.g., HTML 500/502 error)
+                    console.warn('Body (Raw text, failed to parse as JSON):', data);
+                    console.groupEnd();
+                    return reject(new Error(`Failed to parse JSON response: ${e.message}`));
+                }
+                console.groupEnd();
+                resolve(parsed);
             });
         });
 
@@ -346,7 +369,8 @@ async function createUserDirect(cookie) {
  */
 async function updateUser(cookie) {
     const updateData = await readFromJsonFile('users/updateUser.json');
-    const userId = updateData.userId;
+    console.log(updateData);
+    const userId = updateData.userid;
     if (!userId) {
         throw new Error('users/updateUser.json must include a "userId" field');
     }
@@ -355,6 +379,25 @@ async function updateUser(cookie) {
     console.log(JSON.stringify(updateData));
     const response = await sendRequest(Method.PUT, davinciApiUrl, `/v1/api/user/${userId}`, updateData, cookie);
     console.log(JSON.stringify(response));
+    return response;
+}
+
+/**
+ * This function will get a single user using the GET /v2/api/user/{userId} endpoint.
+ * Prompts for the user id and sends it as part of the URL.
+ *
+ * @param {string} cookie
+ * @return {*} response body
+ */
+async function getUser(cookie) {
+    const userId = await readLineHandler('Enter userId: ');
+    if (!userId || !userId.trim()) {
+        throw new Error('A userId is required');
+    }
+
+    const response = await sendRequest(Method.GET, davinciApiUrl, `/v2/api/user/id/${userId.trim()}`, null, cookie);
+    console.log(JSON.stringify(response, null, 2));
+    await writeToJsonFile(response, 'users/exportUser.json');
     return response;
 }
 
