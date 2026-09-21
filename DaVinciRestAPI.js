@@ -354,7 +354,7 @@ async function createUserObject(username = null, profileid = null, profilename =
 async function createUserDirect(cookie) {
     const newUser = await readFromJsonFile('users/createUser.json');
     console.log(JSON.stringify(newUser));
-    const response = await sendRequest(Method.POST, davinciApiUrl, '/v1/api/user', newUser, cookie);
+    const response = await sendRequest(Method.POST, davinciApiUrl, '/v2/api/user', newUser, cookie);
     console.log(JSON.stringify(response));
     return response;
 }
@@ -377,7 +377,7 @@ async function updateUser(cookie) {
     // Remove userId from the payload since it goes in the URL
     delete updateData.userId;
     console.log(JSON.stringify(updateData));
-    const response = await sendRequest(Method.PUT, davinciApiUrl, `/v1/api/user/${userId}`, updateData, cookie);
+    const response = await sendRequest(Method.PUT, davinciApiUrl, `/v2/api/user/${userId}`, updateData, cookie);
     console.log(JSON.stringify(response));
     return response;
 }
