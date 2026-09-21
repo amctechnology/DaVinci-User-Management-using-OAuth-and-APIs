@@ -426,7 +426,7 @@ window.openapiSpec = {
                 }
             }
         },
-        "/v1/api/user (POST)": {
+        "/v2/api/user": {
             "post": {
                 "tags": [
                     "Users"
@@ -506,7 +506,7 @@ window.openapiSpec = {
                 }
             }
         },
-        "/v1/api/user/{userId}": {
+        "/v2/api/user/{userId}": {
             "put": {
                 "tags": [
                     "Users"
